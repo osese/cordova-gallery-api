@@ -20,13 +20,14 @@ public class GalleryAPI extends CordovaPlugin
     public static final String ACTION_GET_MEDIA = "getMedia";
     public static final String ACTION_GET_ALBUMS = "getAlbums";
 
-    @Override
+    //@Overridehttps://github.com/osese/cordova-gallery-api
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException
     {
         try {
             if (ACTION_GET_MEDIA.equals(action))
             {
-                ArrayOfObjects albums = getMedia("Camera");
+
+                ArrayOfObjects albums = getMedia(args.getString(0));
 
                 callbackContext.success(new JSONArray(albums));
 

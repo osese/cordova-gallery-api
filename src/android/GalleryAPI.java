@@ -19,13 +19,15 @@ public class GalleryAPI extends CordovaPlugin
 {
     public static final String ACTION_GET_MEDIA = "getMedia";
     public static final String ACTION_GET_ALBUMS = "getAlbums";
+    public static final String ACTION_GET_ALLMEDIA = "getAllMedia";
 
-    @Override
+    //@Overridehttps://github.com/osese/cordova-gallery-api
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException
     {
         try {
             if (ACTION_GET_MEDIA.equals(action))
             {
+
                 ArrayOfObjects albums = getMedia(args.getString(0));
 
                 callbackContext.success(new JSONArray(albums));
@@ -38,6 +40,10 @@ public class GalleryAPI extends CordovaPlugin
 
                 callbackContext.success(new JSONArray(albums));
 
+                return true;
+            }else if(ACTION_GET_ALLMEDIA.equals(action)){
+                ArrayOfObjects albums = getAllMedia();
+                callbackContext.success(new JSONArray(albums));
                 return true;
             }
             callbackContext.error("Invalid action");
@@ -111,6 +117,60 @@ public class GalleryAPI extends CordovaPlugin
 
         return results;
     }
+
+    private ArrayOfObjects getAllMedia() throws JSONException
+    {
+        Object columns = new Object()
+        {{
+            put("int.id", MediaStore.Images.Media._ID);
+            put("data", MediaStore.MediaColumns.DATA);
+            put("int.date_added", MediaStore.Images.ImageColumns.DATE_ADDED);
+            put("title", MediaStore.Images.ImageColumns.DISPLAY_NAME);
+            put("int.height", MediaStore.Images.ImageColumns.HEIGHT);
+            put("int.width", MediaStore.Images.ImageColumns.WIDTH);
+            put("int.orientation", MediaStore.Images.ImageColumns.ORIENTATION);
+            put("mime_type", MediaStore.Images.ImageColumns.MIME_TYPE);
+            put("float.lat", MediaStore.Images.ImageColumns.LATITUDE);
+            put("float.lon", MediaStore.Images.ImageColumns.LONGITUDE);
+            put("int.size", MediaStore.Images.ImageColumns.SIZE);
+            put("int.thumbnail_id", MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC);
+            put("album", MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
+        }};
+
+        Object thumbnailsColumns = new Object()
+        {{
+            put("int.source_id", MediaStore.Images.Thumbnails.IMAGE_ID);
+            put("data", MediaStore.MediaColumns.DATA);
+        }};
+
+        final ArrayOfObjects results    = queryContentProvider(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, "");
+        final ArrayOfObjects thumbnails = queryContentProvider(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, thumbnailsColumns, MediaStore.Images.Thumbnails.KIND + " = " + MediaStore.Images.Thumbnails.MINI_KIND);
+
+        for (Object media : results)
+        {
+            for (Object thumbnail : thumbnails)
+            {
+                // Logger.getLogger("my.output").info("" + thumbnail.get("source_id"));
+
+                if (thumbnail.getInt("source_id") == media.getInt("id"))
+                {
+                    media.put("thumbnail", thumbnail.get("data"));
+
+                    //Logger.getLogger("my.output").info("" + media.get("id"));
+
+                    break;
+                }
+            }
+
+            if (!media.has("thumbnail"))
+            {
+                Logger.getLogger("my.output").info("No thumbnail for " + media.get("id") + " - " + media.get("title"));
+            }
+        }
+
+        return results;
+    }
+
 
     private Context getContext()
     {

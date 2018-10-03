@@ -24,4 +24,13 @@ GalleryAPI.prototype.getMedia = function(albumName, successCallback, errorCallba
     );
 };
 
+GalleryAPI.prototype.getAllMedia = function(successCallback, errorCallback) {
+    cordova.exec(
+        successCallback,
+        errorCallback,
+        'GalleryAPI',
+        'getAllMedia',
+        []
+    );
+};
 module.exports = new GalleryAPI();

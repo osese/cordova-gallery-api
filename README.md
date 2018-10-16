@@ -24,6 +24,21 @@ Returns an array of object with the following fields:
 - size
 - date_create
 
+### Method `getAllMedia`
+Returns an array of object with the following fields:
+
+- id
+- title
+- lat
+- lon
+- thumbnail
+- data
+- width
+- height
+- size
+- date_create
+- album 
+
 ### Installation
 
     cordova plugin add https://github.com/subitolabs/cordova-gallery-api.git
